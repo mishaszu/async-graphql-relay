@@ -14,7 +14,7 @@ mod user;
 pub struct QueryRoot;
 
 #[derive(Interface, RelayInterface)]
-#[graphql(field(name = "id", type = "NodeGlobalID"))] // The 'NodeGlobalID' type comes from the 'RelayInterface' macro.
+#[graphql(field(name = "id", ty = "NodeGlobalID"))] // The 'NodeGlobalID' type comes from the 'RelayInterface' macro.
 pub enum Node {
     User(User),
     Tenant(Tenant),
@@ -40,7 +40,7 @@ impl QueryRoot {
 
     async fn node(
         &self,
-        #[graphql(validator(min_length = 33, max_length = 33))] id: String, // Ensure the length's of the longest 'node_suffix' plus 32 is validated.
+        #[graphql(validator(min_length = 37, max_length = 38))] id: String, // Ensure the length's of the longest 'node_suffix' plus 32 is validated.
     ) -> Result<Node, Error> {
         let ctx = RelayContext::new::<String>("Hello World".to_string()); // This could include your database connection and/or any other context required in your implementations of the 'RelayNode' trait.
         Node::fetch_node(ctx, id).await

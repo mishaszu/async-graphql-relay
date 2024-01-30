@@ -117,10 +117,16 @@ pub fn derive_relay_interface(input: TokenStream) -> TokenStream {
         #[async_graphql_relay::_async_trait]
         impl async_graphql_relay::RelayNodeInterface for Node {
             async fn fetch_node(ctx: async_graphql_relay::RelayContext, relay_id: String) -> Result<Self, async_graphql::Error> {
-                if relay_id.len() < 32 {
-                    return Err(async_graphql::Error::new("Invalid id provided to node query!"));
+                let split_position = relay_id.find("+");
+                if let None = split_position {
+                    return Err(Error::new("Invalid id provided to node query! RelayNodId should contain '+' and a seperator!"));
                 }
-                let (_, suffix) = relay_id.split_at(32);
+                let splited = relay_id.split_at(split_position.unwrap());
+                let id = splited.0;
+                if id.len() != 36 {
+                    return Err(Error::new("Invalid id provided to node query! Uuid v4 length should be 36!"));
+                }
+                let suffix = splited.1.split_at(1).1;
                 match suffix {
                     #(#node_matchers)*
                     _ => Err(async_graphql::Error::new("A node with the specified id could not be found!")),

@@ -60,10 +60,15 @@ impl<T: RelayNode> RelayNodeID<T> {
 
     /// new_from_relay_id takes in a generic relay ID and converts it into a RelayNodeID.
     pub fn new_from_relay_id(relay_id: String) -> Result<Self, Error> {
-        if relay_id.len() < 32 {
+        let split_position = relay_id.find("+");
+        if let None = split_position {
             return Err(Error::new("Invalid id provided to node query!"));
         }
-        let (id, _) = relay_id.split_at(32);
+        let splited = relay_id.split_at(split_position.unwrap());
+        let id = splited.0;
+        if id.len() != 36 {
+            return Err(Error::new("Invalid id provided to node query!"));
+        }
         let uuid = Uuid::parse_str(&id)
             .map_err(|_err| Error::new("Invalid id provided to node query!"))?;
         Ok(RelayNodeID(uuid, PhantomData))
@@ -83,7 +88,7 @@ impl<T: RelayNode> RelayNodeID<T> {
 
 impl<T: RelayNode> From<&RelayNodeID<T>> for String {
     fn from(id: &RelayNodeID<T>) -> Self {
-        format!("{}{}", id.0.to_string(), T::ID_SUFFIX)
+        format!("{}+{}", id.0.to_string(), T::ID_SUFFIX)
     }
 }
 
