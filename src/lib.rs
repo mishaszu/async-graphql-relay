@@ -83,7 +83,7 @@ impl<T: RelayNode> RelayNodeID<T> {
 
 impl<T: RelayNode> From<&RelayNodeID<T>> for String {
     fn from(id: &RelayNodeID<T>) -> Self {
-        format!("{}{}", id.0.to_simple().to_string(), T::ID_SUFFIX)
+        format!("{}{}", id.0.to_string(), T::ID_SUFFIX)
     }
 }
 
